@@ -11,10 +11,11 @@
 
 # production
 /build
-/.vscode
+.vscode/
+service/
+
 
 #service
-/service
 
 # misc
 .DS_Store
