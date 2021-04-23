@@ -164,12 +164,6 @@ class Lms
     public function getListOfTeacher($courseId)
     {
 
-        // $coursecapabilities = new stdClass();
-        // $coursecapabilities->courseid = $courseId;
-        // $coursecapabilities->capabilities = ['moodle/grade:edit'];
-        // $wrappedArray = [$coursecapabilities];
-        // $params1 = ['coursecapabilities' => $wrappedArray];
-
         $coursecapabilities = ['coursecapabilities' => [
             [
                 'courseid' => $courseId,
@@ -207,5 +201,16 @@ class Lms
         $this->tk .
         '&wsfunction=' . $this->serviceFunction . '&moodlewsrestformat=' .
         $this->restformat;
+    }
+
+    public function getUserDataByField($fieldName,$userId)
+    {
+        $options = ['field' => $fieldName,
+            'values' => [$userId],
+        ];
+
+        $this->serviceFunction = "core_user_get_users_by_field";
+
+        return json_decode($this->curl->post($this->getWebServiceUrl(), $options), true);
     }
 }

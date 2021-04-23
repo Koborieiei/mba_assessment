@@ -1,0 +1,19 @@
+Time : 11:38:50
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'total' in 'field list'
+Raw SQL : SELECT *,SUM(score=1) as n1,SUM(score=2) as n2,SUM(score=3) as n3,SUM(score=4) as n4,SUM(score=5) as n5, COUNT(*) as total, sum(total)
+    FROM (SELECT a.transection_id,b.assetmentform_id,a.score,c.question_text,c.question_type
+        FROM asm_rating as a INNER JOIN asm_transection as b on a.transection_id = b.id
+            INNER JOIN asm_questions as c on a.question_id = c.id ) newtable
+        WHERE assetmentform_id = 6
+    GROUP by score,question_text
+    ORDER BY `newtable`.`question_text` DESC
+
+Time : 11:36:44
+SQLSTATE[42S22]: Column not found: 1054 Unknown column 'total' in 'field list'
+Raw SQL : SELECT *,SUM(score=1) as n1,SUM(score=2) as n2,SUM(score=3) as n3,SUM(score=4) as n4,SUM(score=5) as n5, COUNT(*) as total, sum(total)
+    FROM (SELECT a.transection_id,b.assetmentform_id,a.score,c.question_text,c.question_type
+        FROM asm_rating as a INNER JOIN asm_transection as b on a.transection_id = b.id
+            INNER JOIN asm_questions as c on a.question_id = c.id ) newtable
+        WHERE assetmentform_id = 6
+    GROUP by score,question_text
+    ORDER BY `newtable`.`question_text` DESC

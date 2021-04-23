@@ -6,10 +6,12 @@ import {
   CardContent,
   FormControl,
   InputLabel,
+  MenuItem,
+  TextField,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
   },
   selectElement: {
-    marginTop: 15,
+    width: "100%",
   },
   //   formControl: {
   //     // width: 30,
@@ -28,53 +30,51 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SelectLists = ({ teacherLists }) => {
-  return teacherLists.map((teacher, index) => {
-    return (
-      <option value={teacher[0]} key={index}>
-        {teacher[1]} {teacher[2]}
-      </option>
-    );
-  });
-};
-
-export default function TeacherSelector({ assess, teacherLists }) {
+export default function TeacherSelector({ assess, teacherLists, register }) {
   const classes = useStyles();
+  // const { register } = useForm();
   return (
     <Card className={classes.root}>
       <CardContent>
         <Typography className={classes.title} gutterBottom>
           เลือกอาจารย์ผู้สอน
         </Typography>
-        <Controller
-          render={({
-            field: { onChange, onBlur, name, ref, value },
-            fieldState: { invalid, isTouched, isDirty, error },
-            formState,
-          }) => (
-            <FormControl variant="outlined" fullWidth={true}>
-              <InputLabel
-                className={classes.selectElement}
-                htmlFor="age-native-simple"
-              >
-                อาจารย์ผู้สอน
-              </InputLabel>
-              <Select
-                native
-                className={classes.selectElement}
-                value={value}
-                onChange={onChange}
-                label="อาจารย์ผู้สอน"
-              >
-                <option value="" aria-label="none" />
-                <SelectLists teacherLists={teacherLists} />
-              </Select>
-            </FormControl>
-          )}
-          control={assess}
-          name="selectedteacher"
-          defaultValue=""
-        />
+
+        <FormControl fullWidth={true} variant="outlined">
+          <InputLabel htmlFor="age-native-simple">อาจารย์ผู้สอน</InputLabel>
+          <Controller
+            rules={{ required: true }}
+            control={assess}
+            name="selectedteacher"
+            defaultValue=""
+            render={({
+              field,
+              fieldState: { invalid, isTouched, isDirty, error },
+            }) => (
+              <div>
+                <Select
+                  label="อาจารย์ผู้สอน"
+                  className={classes.selectElement}
+                  native
+                  {...field}
+                >
+                  <option value="" aria-label="none"></option>
+                  {teacherLists.map((teacher, index) => (
+                    <option key={index} value={teacher[0]}>
+                      {teacher[1]} {teacher[2]}
+                    </option>
+                  ))}
+                </Select>
+
+                {error && (
+                  <Typography color="error" component="p">
+                    ไม่สามารถเว้นว่างได้
+                  </Typography>
+                )}
+              </div>
+            )}
+          />
+        </FormControl>
       </CardContent>
     </Card>
   );

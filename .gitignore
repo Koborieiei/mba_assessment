@@ -13,12 +13,17 @@
 /build
 /.vscode
 
+#service
+/service
+
 # misc
 .DS_Store
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod
+.env.dev
 
 npm-debug.log*
 yarn-debug.log*

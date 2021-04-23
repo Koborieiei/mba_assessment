@@ -2,7 +2,6 @@
 
 // namespace assessment;
 
-require_once '../configpdo/db.class.php';
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 
@@ -10,18 +9,27 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header(
     'Access-Control-Allow-Headers: Authorization, Content-Type,Accept, Origin'
 );
+require_once __DIR__ . '/../configpdo/db.class.php';
+
 
 $db = new DB();
-print_r($questionIdArray);
+// print_r($questionIdArray);
 
 $jsonData = json_decode(file_get_contents('php://input'), true);
-print_r($jsonData);
-
+// print_r($jsonData);
+sleep(5);
 try {
     storeTransaction();
     storeQuestionRating();
-} catch (\Throwable $th) {
-    //throw $th;
+    echo json_encode([
+        "message" => 'Sucessful',
+        "code" => 200,
+    ], JSON_PRETTY_PRINT);
+} catch (Exception $e) {
+    echo json_encode([
+        "message" => $e->getMessage(),
+        "code" => $e->getCode(),
+    ], JSON_PRETTY_PRINT);
 }
 
 function storeQuestionRating()

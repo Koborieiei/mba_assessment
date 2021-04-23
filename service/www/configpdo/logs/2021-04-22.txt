@@ -1,0 +1,22 @@
+Time : 12:28:59
+SQLSTATE[23000]: Integrity constraint violation: 1048 Column 'teacher_id' cannot be null
+Raw SQL : INSERT INTO asm_assetmentform (course_id,question_id,teacher_id,user_created,term_id,is_visible) VALUES (:course_id,"1,2,5,6,7",:teacher_id,11,1,1)
+
+Time : 12:16:55
+SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`myDb`.`asm_transection`, CONSTRAINT `asm_transection_ibfk_1` FOREIGN KEY (`assetmentform_id`) REFERENCES `asm_assetmentform` (`id`))
+Raw SQL : INSERT INTO asm_transection (assetmentform_id,user_id,teacher_id) VALUES (:assessmentId,:userId ,:teacherId)
+
+Time : 11:46:43
+SQLSTATE[23000]: Integrity constraint violation: 1052 Column 'ID' in field list is ambiguous
+Raw SQL : SELECT COUNT(ID) FROM asm_transection as a INNER JOIN asm_assetmentform as b on a.assetmentform_id = b.id WHERE user_id = :userid
+
+Time : 08:31:10
+SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ',score=3) as total
+    FROM (SELECT a.transection_id,b.assetmentform_id,a.score,' at line 1
+Raw SQL : SELECT *,SUM(score=1) as n1,SUM(score=2) as n2,SUM(score=3) as n3,SUM(score=4) as n4,SUM(score=5) as n5, sum(score=5,score=3) as total
+    FROM (SELECT a.transection_id,b.assetmentform_id,a.score,c.question_text,c.question_type
+        FROM asm_rating as a INNER JOIN asm_transection as b on a.transection_id = b.id
+            INNER JOIN asm_questions as c on a.question_id = c.id ) newtable
+        WHERE assetmentform_id = 6
+    GROUP by score,question_text
+    ORDER BY `newtable`.`question_text` DESC

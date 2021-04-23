@@ -4,11 +4,11 @@ import QuestionContainer from "./QuestionContainer";
 import TeacherSelector from "./TeacherSelector";
 import HeaderSection from "./HeaderSection";
 import TextAreaFullwidth from "./TextAreaFullwidth";
-import { Button } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import getQueryParams from "../utils/getQueryParam";
-// import { Typography,Card } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 
 const QuestionSection = styled.section`
   padding: 10px;
@@ -17,31 +17,34 @@ const QuestionSection = styled.section`
 export default function FormSection() {
   const [formState, setFormState] = useState([]);
   const [data, setData] = useState([]);
-  const { control, handleSubmit } = useForm();
+  const [isSubmitting, setisSubmitting] = useState(false);
+  const [isFormsubmiited, setIsFormsubmiited] = useState(false);
+  const { register, control, handleSubmit } = useForm();
   const { uid, courseid } = getQueryParams();
   // const { uid, courseid } = getQueryParams();
   //   console.log(control);
+  const fetchData = async () => {
+    const params = { params: { courseid: courseid, uid: uid } };
+    const url = process.env.REACT_APP_DOMAIN + "/api/getquestions.php";
+    // const url = "/api/getquestions.php";
+    const req = await axios.get(url, params);
+    //   setAssesmentInfo(req.data.assetmentid);
+    setFormState({
+      assessment_id: req.data.assetmentid,
+      u_id: uid,
+      course_id: courseid,
+    });
+    setData(req.data);
 
+    // console.log(data);
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      const params = { params: { courseid: courseid, uid: uid } };
-      const url = "http://mbaonline.utcc.ac.th/api/getquestions.php";
-      const req = await axios.get(url, params);
-      //   setAssesmentInfo(req.data.assetmentid);
-      setFormState({
-        assessment_id: req.data.assetmentid,
-        u_id: uid,
-        course_id: courseid,
-      });
-      setData(req.data);
-      console.log(data);
-      // setData(req, data);
-    };
     fetchData();
   }, []);
 
   const QuestionIndividual = () => {
-    // console.log(questions);
+    console.log();
+
     return data.questions.map((data) => {
       return (
         <QuestionContainer
@@ -64,13 +67,15 @@ export default function FormSection() {
 
   const onSubmitHandle = async (formData) => {
     formState.questions = formData;
-    // console.log(formState);
+    setIsFormsubmiited(true);
     try {
-      const url = "http://mbaonline.utcc.ac.th/api/createassesment.php";
+      const url = process.env.REACT_APP_DOMAIN + "/api/createassesment.php";
       const req = await axios.post(url, JSON.stringify(formState));
       const data = await req.data;
       // console.log(data);
-      console.log(data);
+      if (data.code === 200) {
+        setisSubmitting(true);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -82,31 +87,66 @@ export default function FormSection() {
 
   return (
     <>
-      {data.length !== 0 ? (
-        <>
-          <HeaderSection courseshortname={data.course_shortname} />
-          <QuestionSection>
-            <form onSubmit={handleSubmit(onSubmitHandle)}>
-              <TeacherSelector
-                teacherLists={data.teacher_list}
-                assess={control}
-              />
-              <QuestionIndividual />
-              <TextAreaFullwidth assess={control} />
-
-              <Button
-                type="submit"
-                size="large"
-                variant="contained"
-                color="primary"
-              >
-                ยืนยัน
-              </Button>
-            </form>
-          </QuestionSection>
-        </>
+      {isSubmitting === false ? (
+        data.code !== 208 ? (
+          data.length !== 0 ? (
+            <>
+              <HeaderSection courseshortname={data.course_shortname} />
+              <QuestionSection>
+                <form onSubmit={handleSubmit(onSubmitHandle)}>
+                  <TeacherSelector
+                    register={register}
+                    teacherLists={data.teacher_list}
+                    assess={control}
+                  />
+                  <QuestionIndividual />
+                  <TextAreaFullwidth assess={control} />
+                  <Button
+                    type="submit"
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    disabled={isFormsubmiited}
+                  >
+                    ยืนยัน
+                  </Button>
+                </form>
+              </QuestionSection>
+            </>
+          ) : (
+            <Box m={0} mt={20} align="center">
+              Loading
+            </Box>
+          )
+        ) : (
+          <Box component="div" align="center" m="auto" mt={30}>
+            <Typography align="center" variant="h3">
+              ดูเหมือนว่า คุณได้ประเมินเรียบร้อยแล้ว
+            </Typography>
+            <Button
+              type="submit"
+              size="large"
+              variant="contained"
+              color="primary"
+            >
+              กลับหน้าแรก
+            </Button>
+          </Box>
+        )
       ) : (
-        <> Loading </>
+        <Box component="div" align="center" m={0} mt={30}>
+          <Typography align="center" variant="h3">
+            ประเมินเรียบร้อยแล้ว
+          </Typography>
+          <Button
+            type="submit"
+            size="large"
+            variant="contained"
+            color="primary"
+          >
+            กลับหน้าแรก
+          </Button>
+        </Box>
       )}
     </>
   );

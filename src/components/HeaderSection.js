@@ -18,8 +18,7 @@ export default function HeaderSection({ courseshortname }) {
       <Typography variant="h4" component="h4">
         ประเมินอาจารย์ประจำวิชา {courseshortname}
       </Typography>
-      <Typography component="span">
-        การประเมินความคิดเห็นของนักศึกษาต่อ
+      <Typography color="textSecondary" component="p">การประเมินความคิดเห็นของนักศึกษาต่อเนื้อหาตลอดการเรียน รวมลักษณะการสอนของอาจารย์ตามแต่ละวิชา
       </Typography>
     </Box>
   );

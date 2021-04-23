@@ -1,6 +1,4 @@
 <?php
-require_once '../configpdo/db.class.php';
-require_once __DIR__ . '/class/Lmsapi.class.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
@@ -9,6 +7,8 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header(
     'Access-Control-Allow-Headers: Authorization, Content-Type,Accept, Origin'
 );
+require_once __DIR__ . '/../configpdo/db.class.php';
+require_once __DIR__ . '/class/Lmsapi.class.php';
 
 try {
 
@@ -21,11 +21,14 @@ try {
     $courseId = $_GET['courseid'];
     $userid = $_GET['uid'];
 
-    // if (hasTransection($userid)) {
-    //     throw new Exception('You have evaluated already', 208);
-    // }
+    if (hasTransection($userid, $courseId)) {
+        throw new Exception('You have evaluated already', 208);
+    }
 
-    // echo hasTransection($userid);
+    if (!hasAssesmentForm($courseId)) {
+        insertAssessmentForm($courseId);
+    }
+
     $assetmentId = getAssesmentId($courseId);
     $questions = createAsessmentForm($assetmentId);
 
@@ -55,16 +58,15 @@ function getAssesmentId($courseid)
 function createAsessmentForm($assetmentId)
 {
 
-
     global $courseId;
     global $lms;
-    global $userid;
 
     $assesmentArray = [
-        "assetmentid" => 3,
+        "assetmentid" => $assetmentId,
         'course_shortname' => $lms->getCourseContent($courseId)[0]['shortname'],
         "questions" => [],
         "teacher_list" => getTeacherName($courseId),
+        'code' => 200,
     ];
     $questions = getQuestions(3);
 
@@ -107,10 +109,49 @@ function getTeacherName($courseId)
     return $teacherLists;
 }
 
-function hasTransection($userid)
+function hasTransection($userid, $courseId)
 {
     global $db;
-    $db->bind('userid', $userid);
-    $queryResponse = $db->single('SELECT COUNT(ID) FROM asm_transection WHERE user_id = :userid');
+    // $db->bind('userid', $userid);
+    $db->bindMore(['userid' => $userid, 'courseid' => $courseId]);
+    $queryResponse = $db->single('SELECT COUNT(a.ID) FROM asm_transection as a INNER JOIN asm_assetmentform as b on a.assetmentform_id = b.id WHERE user_id = :userid AND b.course_id = :courseid');
     return $queryResponse > 0;
+}
+
+function hasAssesmentForm($courseId)
+{
+    global $db;
+    $db->bind('courseid', $courseId);
+    $queryResponse = $db->single('SELECT COUNT(ID) FROM asm_assetmentform WHERE course_id = :courseid');
+    return $queryResponse > 0;
+}
+
+function insertAssessmentForm($courseId)
+{
+    global $db;
+    global $lms;
+    try {
+        $buckOfTeacherList = $lms->getListOfTeacher($courseId);
+
+        foreach ($buckOfTeacherList[0]['users'] as $value) {
+            $db->bindMore(
+                [
+                    'course_id' => $courseId,
+                    'teacher_id' => $value['id'],
+                ]
+            );
+            $sqlCommande = 'INSERT INTO asm_assetmentform (course_id,question_id,teacher_id,user_created,term_id,is_visible) VALUES (:course_id,"1,2,5,6,7",:teacher_id,11,1,1)';
+            $queryResponse = $db->query($sqlCommande);
+
+            if (!$queryResponse) {
+                throw new Exception('Failed to connect', 505);
+            }
+        }
+    } catch (Exception $e) {
+        echo json_encode([
+            "message" => $e->getMessage(),
+            "code" => $e->getCode(),
+        ], JSON_PRETTY_PRINT);
+    }
+
 }
