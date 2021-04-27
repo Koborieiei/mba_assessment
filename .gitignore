@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+
 /.pnp
 .pnp.js
 
@@ -12,7 +13,10 @@
 # production
 /build
 .vscode/
-service/
+/service
+
+
+
 
 
 #service
@@ -25,6 +29,7 @@ service/
 .env.production.local
 .env.prod
 .env.dev
+
 
 npm-debug.log*
 yarn-debug.log*

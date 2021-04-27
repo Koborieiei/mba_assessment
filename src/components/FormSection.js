@@ -5,6 +5,7 @@ import TeacherSelector from "./TeacherSelector";
 import HeaderSection from "./HeaderSection";
 import TextAreaFullwidth from "./TextAreaFullwidth";
 import { Button, Typography } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import getQueryParams from "../utils/getQueryParam";
@@ -14,18 +15,27 @@ const QuestionSection = styled.section`
   padding: 10px;
 `;
 
+const useStyle = makeStyles({
+  submitButton: {
+    marginTop: 30,
+  },
+});
+
 export default function FormSection() {
+  const classes = useStyle();
+
   const [formState, setFormState] = useState([]);
   const [data, setData] = useState([]);
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isFormsubmiited, setIsFormsubmiited] = useState(false);
   const { register, control, handleSubmit } = useForm();
-  const { uid, courseid } = getQueryParams();
+  const { uid, courseid, site } = getQueryParams();
   // const { uid, courseid } = getQueryParams();
   //   console.log(control);
   const fetchData = async () => {
-    const params = { params: { courseid: courseid, uid: uid } };
-    const url = process.env.REACT_APP_DOMAIN + "/api/getquestions.php";
+    const params = { params: { courseid: courseid, uid: uid, site: site } };
+    const url =
+      process.env.REACT_APP_DOMAIN + process.env.REACT_APP_GETQUESTION;
     // const url = "/api/getquestions.php";
     const req = await axios.get(url, params);
     //   setAssesmentInfo(req.data.assetmentid);
@@ -59,17 +69,12 @@ export default function FormSection() {
     });
   };
 
-  // const TeacherSelector = () => {
-  //   return data.teacher_list.map((teacher, index) => {
-  //     return <QuestionContainer key={index} queti />;
-  //   });
-  // };
-
   const onSubmitHandle = async (formData) => {
     formState.questions = formData;
     setIsFormsubmiited(true);
     try {
-      const url = process.env.REACT_APP_DOMAIN + "/api/createassesment.php";
+      const url =
+        process.env.REACT_APP_DOMAIN + process.env.REACT_APP_INSERTASSESSMENT;
       const req = await axios.post(url, JSON.stringify(formState));
       const data = await req.data;
       // console.log(data);
@@ -79,10 +84,6 @@ export default function FormSection() {
     } catch (error) {
       console.log(error);
     }
-    // let formData = new FormData(e.target);
-    // //   console.log(assesmentInfo)
-    // formData.append("questionid", JSON.stringify(assesmentInfo));
-    // console.log(formData.getAll("questionid"));
   };
 
   return (
@@ -120,14 +121,17 @@ export default function FormSection() {
           )
         ) : (
           <Box component="div" align="center" m="auto" mt={30}>
-            <Typography align="center" variant="h3">
-              ดูเหมือนว่า คุณได้ประเมินเรียบร้อยแล้ว
+            <Typography align="center" variant="h4">
+              คุณได้ประเมินเรียบร้อยแล้ว 🥰
             </Typography>
+
             <Button
-              type="submit"
+              type="button"
+              onClick={() => (window.location = process.env.REACT_APP_DOMAIN)}
               size="large"
               variant="contained"
               color="primary"
+              className={classes.submitButton}
             >
               กลับหน้าแรก
             </Button>
@@ -135,14 +139,16 @@ export default function FormSection() {
         )
       ) : (
         <Box component="div" align="center" m={0} mt={30}>
-          <Typography align="center" variant="h3">
-            ประเมินเรียบร้อยแล้ว
+          <Typography align="center" variant="h4">
+            ขอบคุณสำหรับคำประเมิน 🥰
           </Typography>
           <Button
-            type="submit"
+            type="button"
+            onClick={() => (window.location = process.env.REACT_APP_DOMAIN)}
             size="large"
             variant="contained"
             color="primary"
+            className={classes.submitButton}
           >
             กลับหน้าแรก
           </Button>

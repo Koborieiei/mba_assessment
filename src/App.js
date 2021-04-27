@@ -1,11 +1,15 @@
 import Home from "./pages/home";
-import { Box, Button } from "@material-ui/core";
+import { Box, Button, makeStyles, Typography } from "@material-ui/core";
 
 import "./App.css";
 import getQueryParams from "./utils/getQueryParam";
 import { useState, useEffect } from "react";
 import axios from "axios";
-
+const useStyle = makeStyles({
+  submitButton: {
+    marginTop: 30,
+  },
+});
 function App() {
   const isUserLoggedIn = async () => {
     try {
@@ -24,17 +28,28 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
+    // setAuthenticated(true);
+
     isUserLoggedIn();
   }, []);
 
   const HomePageConditional = () => {
-    console.log(authenticated);
+    const classes = useStyle();
     return authenticated === false ? (
       <Box m={0} mt={20} align="center">
-        กรุณาเข้าสู่ระบบก่อนใช้งาน
-        <a href="http://mbaonline.utcc.ac.th/lms/">
-          <Button> เข้าสู่ระบบ</Button>
-        </a>
+        <Typography align="center" variant="h4">
+          กรุณาเข้าสู่ระบบก่อนใช้งาน
+        </Typography>
+        <Button
+          type="button"
+          onClick={() => (window.location = process.env.REACT_APP_DOMAIN)}
+          size="large"
+          variant="contained"
+          color="primary"
+          className={classes.submitButton}
+        >
+          เข้าสู่ระบบ
+        </Button>
       </Box>
     ) : (
       <Home />
@@ -43,11 +58,11 @@ function App() {
 
   // console.log(authenticated);
 
-  const { uid, courseid } = getQueryParams();
+  const { uid, courseid, site } = getQueryParams();
 
   return (
     <>
-      {!courseid || !uid ? (
+      {!courseid || !uid || !site ? (
         <Box m={0} mt={20} align="center">
           ขออภัยระบบเกิดข้อผิดพลาด..
           {(window.location = "http://mbaonline.utcc.ac.th/lms/")}
